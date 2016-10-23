@@ -25,6 +25,10 @@
     "test": "npm run lint && npm run test:only",
     "test:only": "nyc ava"
   },
+  "pre-commit": [
+    "build:docs",
+    "lint"
+  ],
   "keywords": [
     "foobot",
     "foobot.io",
