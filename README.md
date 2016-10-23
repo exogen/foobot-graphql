@@ -32,7 +32,7 @@ middleware supplying a GraphQL endpoint.
 ### As a standalone server
 
 Run the included `foobot-graphql` executable to start the server. The server
-is configured using [Environment Variables](#environment-variables).
+is configured using [environment variables](#environment-variables).
 
 ```sh
 $ foobot-graphql
