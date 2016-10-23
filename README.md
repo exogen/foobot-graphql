@@ -15,6 +15,7 @@ npm install --save foobot-graphql
   - [As a standalone server](#as-a-standalone-server)
   - [As Express middleware](#as-express-middleware)
   - [Environment Variables](#environment-variables)
+  - [Debugging](#debugging)
 - [Schema](#schema)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -42,19 +43,26 @@ import foobotGraphQL from 'foobot-graphql';
 
 const app = express();
 
-app.use('/foobot', foobotGraphQL);
+app.use('/foobot', foobotGraphQL({ /* options */ }));
 
 app.listen(3000);
 ```
 
+The `foobotGraphQL` middleware function accepts the following options:
+
+* **`client`**: A custom API client instance to use. See the
+  [API submodule](src/api.js) for help with creating a custom instance.
+* Any remaining See the [express-graphql][] documentation for
+
 ### Environment Variables
 
-* `FOOBOT_API_KEY`: API key to authenticate with. [Request an API key][API]
+* **`FOOBOT_API_KEY`**: API key to authenticate with. [Request an API key][API]
   at the Foobot site.
-* `FOOBOT_USERNAME`: Username of the account owner.
-* `FOOBOT_DEFAULT_DEVICE`: Device UUID of to use as the default, so you don’t
-  have to look it up and specify it every time if you only have one device.
-* `PORT`: Port number to use, if running the standalone server.
+* **`FOOBOT_USERNAME`**: Username of the account owner.
+* **`FOOBOT_DEFAULT_DEVICE`**: Device UUID of to use as the default, so you
+  don’t have to look it up and specify it every time if you only have one
+  device.
+* **`PORT`**: Port number to use, if running the standalone server.
 
 When running the standalone server, [dotenv][] is used to load these variables
 from a `.env` file, if one exists in the current working directory.
@@ -165,3 +173,4 @@ type Sensors {
 [API]: https://api.foobot.io/apidoc/index.html
 [dotenv]: https://www.npmjs.com/package/dotenv
 [debug]: https://www.npmjs.com/package/debug
+[express-graphql]: https://www.npmjs.com/package/express-graphql
