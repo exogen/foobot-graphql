@@ -1,6 +1,6 @@
 {
   "name": "foobot-graphql",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "GraphQL server for Foobot device data.",
   "main": "lib/index.js",
   "bin": {
