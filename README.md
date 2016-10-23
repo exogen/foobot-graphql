@@ -19,6 +19,7 @@ npm install --save foobot-graphql
   - [As middleware](#as-middleware)
   - [Environment Variables](#environment-variables)
   - [Debugging](#debugging)
+- [Example Queries](#example-queries)
 - [Schema](#schema)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -80,6 +81,64 @@ $ DEBUG=foobot-graphql:* foobot-graphql
 ```
 
 See the [debug][] package for more information.
+
+## Example Queries
+
+Get the latest sensor data from the default device:
+
+```graphql
+
+{
+  device {
+    name
+    sensors {
+      pm {
+        units
+        datapoints {
+          time
+          value
+        }
+      }
+      co2 {
+        units
+        datapoints {
+          time
+          value
+        }
+      }
+      voc {
+        units
+        datapoints {
+          time
+          value
+        }
+      }
+    }
+  }
+}
+
+```
+
+Get the 15-minute averaged pollution index for the last day from device
+`ABCDEF`:
+
+```graphql
+
+{
+  device(uuid: "ABCDEF") {
+    name
+    sensors(period: 86400, averageBy: 900) {
+      allpollu {
+        datapoints {
+          time
+          value
+        }
+      }
+    }
+  }
+}
+
+```
 
 ## Schema
 
