@@ -1,11 +1,11 @@
 /**
  * Instead of requesting averaged data from the API, which uses up our request
  * limit, we can instead always request the highest-resolution data and perform
- * the averaging ourselves. This means that for the same time period, we can
- * request any `averageBy` value using cached data we already have. Not only
- * will it help stay under the request limit, but it will also be faster since
- * we don't need to fetch the data again. We attempt to average the data using
- * methods as reasonably close to the real API as possible.
+ * the averaging ourselves. Not only will this help stay under the request
+ * limit, but it will also be faster since we don't need to fetch data we
+ * already have. This module implements helpers for averaging data as reasonably
+ * close to the real API as possible, so that results are indistinguishable
+ * from the real thing.
  *
  * Run this file as a standalone script to compare our results with live API
  * results.
