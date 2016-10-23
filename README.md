@@ -39,6 +39,9 @@ $ foobot-graphql
 Listening on port 3000.
 ```
 
+Development mode features like JSON pretty printing and the GraphiQL endpoint
+will be enabled unless the server is run with `NODE_ENV=production`.
+
 ### As middleware
 
 If you have an existing Express server and want to add this GraphQL service as
