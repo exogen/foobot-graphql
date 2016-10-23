@@ -1,3 +1,5 @@
+[![Build Status][travis_img]][travis_site]
+
 # foobot-graphql
 
 An [Express][] server and middleware for querying your [Foobot][] using
@@ -174,3 +176,5 @@ type Sensors {
 [dotenv]: https://www.npmjs.com/package/dotenv
 [debug]: https://www.npmjs.com/package/debug
 [express-graphql]: https://www.npmjs.com/package/express-graphql
+[travis_img]: https://travis-ci.org/exogen/foobot-graphql.svg
+[travis_site]: https://travis-ci.org/exogen/foobot-graphql
