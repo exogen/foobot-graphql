@@ -2,7 +2,7 @@
 import express from 'express'
 import graphqlHTTP from 'express-graphql'
 import compression from 'compression'
-import FoobotClient from './api'
+import FoobotClient from './client'
 import schema from './schema'
 import createLoaders from './loaders'
 

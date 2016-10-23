@@ -9,7 +9,7 @@
  * live API results.
  */
 import Decimal from 'decimal.js'
-import FoobotClient from './api'
+import FoobotClient from './client'
 
 const debug = require('debug')('foobot-graphql:average-by')
 
@@ -75,6 +75,7 @@ export function toAveragedData (data, period, averageBy) {
 }
 
 if (require.main === module) {
+  require('dotenv').config()
   const { logObject, logError, safeExit } = require('./util')
 
   const client = new FoobotClient()

@@ -35,7 +35,7 @@ $ foobot-graphql
 Listening on port 3000.
 ```
 
-### As Express middleware
+### As middleware
 
 ```js
 import express from 'express';
@@ -51,7 +51,7 @@ app.listen(3000);
 The `foobotGraphQL` middleware function accepts the following options:
 
 * **`client`**: A custom API client instance to use. See the
-  [API submodule](src/api.js) for help with creating a custom instance.
+  [client submodule](src/client.js) for help with creating a custom instance.
 * Any remaining See the [express-graphql][] documentation for
 
 ### Environment Variables
