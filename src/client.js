@@ -1,12 +1,12 @@
 /**
  * Simple Promise-based client for the Foobot API.
+ *
  * Run this file as a standalone script to test different types of requests.
  */
 import request from 'request'
 import read from 'read'
 import pkg from '../package.json'
 
-// Create a debug logger.
 const debug = require('debug')('foobot-graphql:api')
 
 export default class FoobotClient {
@@ -75,6 +75,10 @@ export default class FoobotClient {
     })
   }
 
+  /**
+   * This endpoint is no longer necessary, as the API now uses the API key as
+   * the auth token. Keep this around in case someone wants to use it anyway.
+   */
   login (username = this.username, password) {
     this.username = username
     return this._request({

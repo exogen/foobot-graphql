@@ -12,6 +12,7 @@ export default function createLoaders (client) {
   const cache = new DataCache()
   const limiter = new Limiter(client)
 
+  // Loads device metadata.
   const deviceLoader = new DataLoader(keys => {
     return client.devices().then(devices => {
       const found = []
@@ -31,6 +32,8 @@ export default function createLoaders (client) {
     cacheMap: new ExpiringMap({ ttl: ONE_DAY })
   })
 
+  // Loads device datapoints and caches them until five minutes after the last
+  // returned datapoint, when we expect new data to be available.
   const datapointsLoader = new DataLoader(keys => {
     return Promise.all(keys.map(key => {
       const [ uuid, period, averageBy ] = key
@@ -57,11 +60,16 @@ export default function createLoaders (client) {
     })
   })
 
+  // A wrapper around the `datapointsLoader` above which takes request limiting
+  // into account, and uses a `DataCache` instance to perform averaging
+  // ourselves.
   const cachedDatapointsLoader = new DataLoader(keys => {
     return Promise.all(keys.map(key => {
       const [ uuid, period, averageBy ] = key
       debug(`Incoming request. device=${uuid} period=${period} averageBy=${averageBy}`)
       const now = new Date()
+      // If we don't have complete data for the requested period, then don't
+      // rate limit the request, because the returned results would be wrong.
       const hasCompleteData = cache.hasCompleteData(uuid, period)
       if (!hasCompleteData) {
         debug(`Incomplete data for the requested period.`)
@@ -74,6 +82,9 @@ export default function createLoaders (client) {
         return wait(delay).then(() => {
           const data = cache.get(uuid, 0, 0)
           let requestPeriod = period
+          // If we already have data for some of the requested period, then we
+          // might as well fetch a smaller window of data to speed things up
+          // and play nice with the API.
           if (data.end != null) {
             const lastTime = data.end * 1000
             // Fetch the period between now and the last known datapoint,

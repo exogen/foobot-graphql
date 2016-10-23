@@ -2,8 +2,8 @@
  * By default, DataLoader caches keys forever. This is not ideal for the types
  * of requests we make to the API. For example, we want to be able to tell the
  * cache to expire datapoint results five minutes after the last datapoint,
- * since that's how often the endpoint updates. Use this with DataLoader's
- * `cacheMap` option.
+ * since that's how often the API updates. Use this with DataLoader's `cacheMap`
+ * option.
  */
 import util from 'util'
 import formatDuration from 'humanize-duration'

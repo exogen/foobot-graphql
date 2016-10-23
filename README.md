@@ -41,13 +41,18 @@ Listening on port 3000.
 
 ### As middleware
 
+If you have an existing Express server and want to add this GraphQL service as
+an endpoint, or you just want more customization, use the middleware.
+
 ```js
 import express from 'express';
 import foobotGraphQL from 'foobot-graphql';
 
 const app = express();
 
-app.use('/foobot', foobotGraphQL({ /* options */ }));
+app.use('/foobot', foobotGraphQL());
+// or, pass some options:
+app.use('/foobot', foobotGraphQL({ graphiql: false }));
 
 app.listen(3000);
 ```
@@ -56,27 +61,27 @@ The `foobotGraphQL` middleware function accepts the following options:
 
 * **`client`**: A custom API client instance to use. See the
   [client submodule](src/client.js) for help with creating a custom instance.
-* Any remaining options are passed along to [express-graphql][]. See the
-  [express-graphql][] documentation for how to control JSON pretty printing,
-  exposing GraphiQL, etc.
+* Any remaining options are passed along to the standard GraphQL middleware.
+  See the [express-graphql][] documentation for more information.
 
 ### Environment Variables
 
 * **`FOOBOT_API_KEY`**: API key to authenticate with. [Request an API key][API]
   at the Foobot site.
 * **`FOOBOT_USERNAME`**: Username of the account owner.
-* **`FOOBOT_DEFAULT_DEVICE`**: Device UUID of to use as the default, so you
+* **`FOOBOT_DEFAULT_DEVICE`**: Device UUID to use as the default, so you
   don’t have to look it up and specify it every time if you only have one
   device.
 * **`PORT`**: Port number to use, if running the standalone server.
 
 When running the standalone server, [dotenv][] is used to load these variables
-from a `.env` file, if one exists in the current working directory.
+from a `.env` file, if one exists in the current working directory. See the
+[dotenv][] package for more information.
 
 ### Debugging
 
-The `DEBUG` environment variable can be used to enable logging for all of this
-package’s submodules:
+The `DEBUG` environment variable can be used to enable logging for all (or just
+some) of this package’s submodules:
 
 ```sh
 $ DEBUG=foobot-graphql:* foobot-graphql

@@ -1,22 +1,23 @@
 /**
+ * The Foobot API is rate limited. This class helpers us figure out when we're
+ * allowed to make another request.
+ *
  * In the worst case, consumers of this GraphQL service will want up-to-date
  * results for the entire day -- for example, by keeping open a dashboard that
- * is constantly updating with the most recent results. The highest resolution
- * update interval is five minutes, but there's a problem: we're limited to 200
- * API requests per day, yet there are 288 five-minute intervals in a day. So
- * unless you MITM the Foobot app and steal their unlimited API key (which
- * works, but is troublesome), we need to figure out how to make fewer API
- * calls while staying reasonably up to date.
+ * is constantly refreshed with the most recent results. The API updates every
+ * five minutes, but there's a problem: we're limited to 200 API requests per
+ * day, yet there are 288 five-minute intervals in a day. So unless you MITM
+ * the Foobot app and steal their unlimited API key (which works, but is
+ * troublesome), we need to figure out how to make fewer API calls while
+ * staying reasonably up to date.
  *
  * Limiter's job is to schedule spaced out fetches. The fetch delay is
- * determined based on the exact time of day and the number of remaining API
- * requests. The basic idea is that during the day when people are likely to be
- * looking at a dashboard, we should make more frequent requests close to the
- * five-minute interval. Late at night, we slow way down -- unless we have a
- * surplus of remaining API calls due to lower client activity, in which case
- * we might as well use them. Note that all of the day's datapoints are still
- * captured no matter what (by expanding the requested period), but we simply
- * fetch them less often.
+ * determined based on the time of day and the number of remaining API requests
+ * we think we have based on the headers in the previous request. Note that all
+ * of the day's datapoints are still fetched no matter what (by expanding the
+ * requested period). So there will never be any dropped datapoints, we just
+ * might not fetch new ones right away.
+ *
  *
  * Run this file as a standalone script to test the delay parameters.
  */
@@ -27,6 +28,10 @@ import { ONE_MINUTE, ONE_HOUR, ONE_DAY } from './util'
 const debug = require('debug')('foobot-graphql:limiter')
 const MAX_DISTANCE = ONE_DAY / 2
 
+// TODO: There is unused code here to allow consumers to specify a "peak time"
+// during which we'll make requests at 5-minute intervals no matter what, and
+// gradually make fewer requests the farther we get from that time. Currently,
+// we just evenly space out the day's remaining requests.
 export default class Limiter {
   constructor (client, {
     peakTimeUTC = ONE_HOUR / 2,

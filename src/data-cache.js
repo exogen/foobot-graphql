@@ -1,3 +1,10 @@
+/**
+ * A class for storing data returned by the Foobot API. Since the API is rate
+ * limited, we want to avoid fetching data that we've already seen before. Use
+ * this class to store the highest resolution, un-averaged data returned by
+ * the API. Consumers can then request the data from this cache instead, and
+ * it'll do * necessary slicing and averaging using `period` and `averageBy`.
+ */
 import { toAveragedData } from './average-by'
 import { ONE_MINUTE } from './util'
 
