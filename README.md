@@ -13,7 +13,7 @@ npm install --save foobot-graphql
 
 - [Usage](#usage)
   - [As a standalone server](#as-a-standalone-server)
-  - [As Express middleware](#as-express-middleware)
+  - [As middleware](#as-middleware)
   - [Environment Variables](#environment-variables)
   - [Debugging](#debugging)
 - [Schema](#schema)
