@@ -1,4 +1,5 @@
 [![Build Status][travis_img]][travis_site]
+[![Package Version][npm_img]][npm_site]
 
 # foobot-graphql
 
@@ -178,3 +179,5 @@ type Sensors {
 [express-graphql]: https://www.npmjs.com/package/express-graphql
 [travis_img]: https://travis-ci.org/exogen/foobot-graphql.svg
 [travis_site]: https://travis-ci.org/exogen/foobot-graphql
+[npm_img]: https://img.shields.io/npm/v/foobot-graphql.svg?label=package+version
+[npm_site]: https://www.npmjs.com/package/foobot-graphql
