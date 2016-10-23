@@ -1,12 +1,31 @@
+/**
+ * Simple Promise-based client for the Foobot API.
+ * Run this file as a standalone script to test different types of requests.
+ */
 import request from 'request'
 import read from 'read'
 import pkg from '../package.json'
 
+// Create a debug logger.
+const debug = require('debug')('foobot-graphql:api')
+
 export default class FoobotClient {
   constructor (opts = {}) {
+    let dotenvConfig
+    if (typeof opts.dotenv === 'undefined' || opts.dotenv === true) {
+      dotenvConfig = { silent: true }
+    } else if (opts.dotenv) {
+      dotenvConfig = opts.dotenv
+    }
+    if (dotenvConfig) {
+      // Load environment variables from a .env file.
+      require('dotenv').config(dotenvConfig)
+    }
     this.apiKey = opts.apiKey || process.env.FOOBOT_API_KEY
-    this.authToken = opts.authToken || process.env.FOOBOT_AUTH_TOKEN
     this.username = opts.username || process.env.FOOBOT_USERNAME
+    this.defaultDevice = opts.defaultDevice || process.env.FOOBOT_DEFAULT_DEVICE
+    this.lastRequestTime = null
+    this.lastRequestLimit = null
     this.http = request.defaults({
       baseUrl: 'https://api.foobot.io/',
       json: true,
@@ -22,10 +41,24 @@ export default class FoobotClient {
 
   _request (options) {
     return new Promise((resolve, reject) => {
+      debug(`Sending request. url='${options.url}'`)
+      const lastRequestTime = new Date()
       this.http(options, (err, response, body) => {
         if (err) {
           return reject(err)
         }
+        const lastRequestLimit = response.headers['x-api-key-limit-remaining']
+        if (this.lastRequestTime == null || this.lastRequestTime <= lastRequestTime) {
+          this.lastRequestTime = lastRequestTime
+          if (lastRequestLimit != null) {
+            this.lastRequestLimit = parseInt(lastRequestLimit, 10)
+          }
+        }
+        debug(
+          `Received response. ` +
+          `statusCode=${response.statusCode} ` +
+          `lastRequestLimit=${lastRequestLimit}`
+        )
         if (response.statusCode >= 200 && response.statusCode < 400) {
           return resolve(response)
         }
@@ -47,9 +80,7 @@ export default class FoobotClient {
       method: 'post',
       body: { password }
     }).then(response => {
-      const authToken = response.headers['x-auth-token']
-      if (authToken) {
-        this.authToken = authToken
+      if (response.headers['x-auth-token']) {
         return response
       }
       throw new Error('Authentication failed.')
@@ -58,12 +89,11 @@ export default class FoobotClient {
 
   devices (username = this.username) {
     return this._request({
-      url: `/v2/owner/${username}/device/`,
-      headers: { 'x-auth-token': this.authToken }
+      url: `/v2/owner/${username}/device/`
     }).then(response => response.body)
   }
 
-  datapoints (uuid, { start, end, period = 0, averageBy = 0 } = {}) {
+  datapoints (uuid = this.defaultDevice, { start, end, period = 0, averageBy = 0 } = {}) {
     if (start instanceof Date) {
       start = start.toISOString()
     }
@@ -78,10 +108,7 @@ export default class FoobotClient {
     if (start != null && end != null) {
       url = `/v2/device/${uuid}/datapoint/${start}/${end}/${averageBy}/`
     }
-    return this._request({
-      url,
-      headers: { 'x-auth-token': this.authToken }
-    }).then(response => {
+    return this._request({ url }).then(response => {
       response.body.date = Date.parse(response.headers.date) / 1000
       return response.body
     })
@@ -95,7 +122,7 @@ if (require.main === module) {
   const command = process.argv[2]
 
   if (command === 'login') {
-    const username = process.argv[3] || process.env.FOOBOT_USERNAME ||
+    const username = process.argv[3] || client.username ||
       new Promise((resolve, reject) => {
         read({ prompt: 'Username:' }, (err, username) => {
           return err ? reject(err) : resolve(username)
@@ -120,7 +147,7 @@ if (require.main === module) {
       safeExit(1)
     })
   } else if (command === 'devices') {
-    const username = process.argv[3] || process.env.FOOBOT_USERNAME
+    const username = process.argv[3]
     client.devices(username).then(devices => {
       logObject(devices)
     }).catch(err => {
@@ -137,5 +164,8 @@ if (require.main === module) {
       logError(err)
       safeExit(1)
     })
+  } else {
+    console.log('Commands: login, devices, datapoints')
+    safeExit(1)
   }
 }

@@ -1,11 +1,23 @@
+/**
+ * Instead of requesting averaged data from the API, which uses up our request
+ * limit, we can instead always request the highest-resolution data and perform
+ * the averaging ourselves. This means that for the same time period, we can
+ * request any `averageBy` using cached data we already have -- not only will
+ * it help stay under the request limit, but it will also be faster. We attempt
+ * to average the data using methods as reasonably close to the real API as
+ * possible. Run this file as a standalone script to compare our results with
+ * live API results.
+ */
 import Decimal from 'decimal.js'
 import FoobotClient from './api'
+
+const debug = require('debug')('foobot-graphql:average-by')
 
 export function bucketize (datapoints, period, averageBy) {
   datapoints = datapoints.slice()
   averageBy = averageBy || 300
   let bucket = []
-  const buckets = [bucket]
+  let buckets = [bucket]
   const lastTime = datapoints[datapoints.length - 1][0]
   let cutoff = lastTime - period + averageBy
   while (datapoints.length) {
@@ -19,7 +31,12 @@ export function bucketize (datapoints, period, averageBy) {
       buckets.push(bucket)
     }
   }
-  return buckets.filter(bucket => bucket.length !== 0)
+  const beforeLength = buckets.length
+  buckets = buckets.filter(bucket => bucket.length !== 0)
+  const afterLength = buckets.length
+  const removed = beforeLength - afterLength
+  debug(`Bucketizing resulted in ${afterLength} bucket(s) (${removed} removed).`)
+  return buckets
 }
 
 export function average (data) {
@@ -44,12 +61,15 @@ export function averageBucket (datapoints) {
 }
 
 export function toAveragedData (data, period, averageBy) {
+  debug(`Averaging dataset. period=${period} averageBy=${averageBy}`)
   const buckets = bucketize(data.datapoints, period, averageBy)
   const datapoints = buckets.map(averageBucket)
+  const first = datapoints[0]
+  const last = datapoints[datapoints.length - 1]
   return {
     ...data,
-    start: datapoints[0][0],
-    end: datapoints[datapoints.length - 1][0],
+    start: first ? first[0] : null,
+    end: last ? last[0] : null,
     datapoints
   }
 }

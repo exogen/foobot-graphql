@@ -6,7 +6,7 @@ import {
   GraphQLInt,
   GraphQLFloat
 } from 'graphql'
-import { toAveragedData } from './average'
+import { client } from './loaders'
 
 const Timestamp = GraphQLString
 
@@ -70,20 +70,20 @@ const Device = new GraphQLObjectType({
     uuid: { type: GraphQLString },
     name: {
       type: GraphQLString,
-      resolve (source, args, { deviceLoader }, info) {
-        return deviceLoader.load(source.uuid).then(device => device.name)
+      resolve ({ uuid }, args, { deviceLoader }, info) {
+        return deviceLoader.load(uuid).then(device => device.name)
       }
     },
     mac: {
       type: GraphQLString,
-      resolve (source, args, { deviceLoader }, info) {
-        return deviceLoader.load(source.uuid).then(device => device.mac)
+      resolve ({ uuid }, args, { deviceLoader }, info) {
+        return deviceLoader.load(uuid).then(device => device.mac)
       }
     },
     userID: {
       type: GraphQLInt,
-      resolve (source, args, { deviceLoader }, info) {
-        return deviceLoader.load(source.uuid).then(device => device.userId)
+      resolve ({ uuid }, args, { deviceLoader }, info) {
+        return deviceLoader.load(uuid).then(device => device.userId)
       }
     },
     sensors: {
@@ -102,13 +102,8 @@ const Device = new GraphQLObjectType({
           'for long range requests (e.g. more than 1 day)'
         }
       },
-      resolve (source, { period, averageBy }, { datapointsLoader }, info) {
-        return datapointsLoader.load([source.uuid, period, 0]).then(data => {
-          if (averageBy >= 300) {
-            data = toAveragedData(data, period, averageBy)
-          }
-          return data
-        })
+      resolve ({ uuid }, { period, averageBy }, { datapointsLoader }, info) {
+        return datapointsLoader.load([uuid, period, averageBy])
       }
     }
   }
@@ -121,7 +116,10 @@ const schema = new GraphQLSchema({
       device: {
         type: Device,
         args: {
-          uuid: { type: GraphQLString }
+          uuid: {
+            type: GraphQLString,
+            defaultValue: client.defaultDevice
+          }
         },
         resolve (source, args, context, info) {
           return { uuid: args.uuid }

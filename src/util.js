@@ -1,12 +1,17 @@
 import util from 'util'
 import chalk from 'chalk'
 
+export const ONE_SECOND = 1000
+export const ONE_MINUTE = 60 * ONE_SECOND
+export const ONE_HOUR = 60 * ONE_MINUTE
+export const ONE_DAY = 24 * ONE_HOUR
+
 export function prettyPrint (obj, options = {}) {
   return util.inspect(obj, { depth: 3, colors: true, ...options })
 }
 
-export function logObject (arr) {
-  console.log(prettyPrint(arr, { breakLength: 120 }))
+export function logObject (obj) {
+  console.log(prettyPrint(obj, { breakLength: 120 }))
 }
 
 export function logError (err) {
@@ -25,4 +30,8 @@ export function safeExit (code) {
   process.on('exit', () => {
     process.exit(code)
   })
+}
+
+export function wait (milliseconds) {
+  return new Promise(resolve => setTimeout(resolve, milliseconds))
 }
