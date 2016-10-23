@@ -1,5 +1,6 @@
 import util from 'util'
 import chalk from 'chalk'
+import supportsColor from 'supports-color'
 
 export const ONE_SECOND = 1000
 export const ONE_MINUTE = 60 * ONE_SECOND
@@ -7,7 +8,7 @@ export const ONE_HOUR = 60 * ONE_MINUTE
 export const ONE_DAY = 24 * ONE_HOUR
 
 export function prettyPrint (obj, options = {}) {
-  return util.inspect(obj, { depth: 3, colors: true, ...options })
+  return util.inspect(obj, { colors: supportsColor, depth: 3, ...options })
 }
 
 export function logObject (obj) {

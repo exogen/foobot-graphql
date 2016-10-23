@@ -3,21 +3,27 @@
   "version": "1.0.0",
   "description": "GraphQL server for Foobot device data.",
   "main": "lib/index.js",
+  "bin": {
+    "foobot-graphql": "lib/index.js"
+  },
   "files": [
     "lib"
   ],
   "scripts": {
-    "build": "BABEL_ENV=production babel -d lib src",
-    "check": "npm run lint && npm test",
+    "build": "npm run build:lib && npm run build:docs",
+    "build:lib": "BABEL_ENV=production babel -d lib src",
+    "build:docs": "doctoc --title \"## Contents\" README.md",
     "clean": "rimraf lib",
     "foobot:datapoints": "babel-node src/api.js datapoints",
     "foobot:devices": "babel-node src/api.js devices",
     "foobot:login": "babel-node src/api.js login",
     "lint": "standard --verbose | snazzy",
     "prepublish": "npm run clean && npm run build",
+    "print-schema": "babel-node src/schema.js",
     "start": "node lib/index.js",
     "start:dev": "nodemon --exec babel-node src/index.js",
-    "test": "nyc ava"
+    "test": "npm run lint && npm run test:only",
+    "test:only": "nyc ava"
   },
   "keywords": [
     "foobot",
@@ -48,8 +54,10 @@
     "babel-preset-es2015": "^6.14.0",
     "babel-preset-stage-2": "^6.13.0",
     "babel-register": "^6.16.3",
+    "doctoc": "^1.2.0",
     "nodemon": "^1.10.2",
     "nyc": "^8.3.2",
+    "pre-commit": "^1.1.3",
     "rimraf": "^2.5.4",
     "snazzy": "^5.0.0",
     "standard": "^8.2.0"
@@ -66,10 +74,15 @@
     "express": "^4.14.0",
     "express-graphql": "^0.5.4",
     "graphql": "^0.7.0",
+    "graphql-date": "^1.0.2",
     "humanize-duration": "^3.9.1",
     "node-uuid": "^1.4.7",
     "read": "^1.0.7",
-    "request": "^2.75.0"
+    "request": "^2.75.0",
+    "supports-color": "^3.1.2"
+  },
+  "config": {
+    "port": 3000
   },
   "standard": {
     "parser": "babel-eslint"

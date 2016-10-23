@@ -11,18 +11,20 @@ const debug = require('debug')('foobot-graphql:api')
 
 export default class FoobotClient {
   constructor (opts = {}) {
-    let dotenvConfig
-    if (typeof opts.dotenv === 'undefined' || opts.dotenv === true) {
-      dotenvConfig = { silent: true }
-    } else if (opts.dotenv) {
-      dotenvConfig = opts.dotenv
-    }
-    if (dotenvConfig) {
-      // Load environment variables from a .env file.
-      require('dotenv').config(dotenvConfig)
-    }
     this.apiKey = opts.apiKey || process.env.FOOBOT_API_KEY
+    if (this.apiKey == null) {
+      throw new Error(
+        'FoobotClient must be configured with an API key. ' +
+        'Use the `apiKey` option or `FOOBOT_API_KEY` environment variable.'
+      )
+    }
     this.username = opts.username || process.env.FOOBOT_USERNAME
+    if (this.username == null) {
+      throw new Error(
+        'FoobotClient must be configured with a username. ' +
+        'Use the `username` option or `FOOBOT_USERNAME` environment variable.'
+      )
+    }
     this.defaultDevice = opts.defaultDevice || process.env.FOOBOT_DEFAULT_DEVICE
     this.lastRequestTime = null
     this.lastRequestLimit = null
@@ -116,6 +118,7 @@ export default class FoobotClient {
 }
 
 if (require.main === module) {
+  require('dotenv').config()
   const { logObject, logError, safeExit } = require('./util')
 
   const client = new FoobotClient()

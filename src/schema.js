@@ -4,13 +4,20 @@ import {
   GraphQLList,
   GraphQLString,
   GraphQLInt,
-  GraphQLFloat
+  GraphQLFloat,
+  printSchema
 } from 'graphql'
-import { client } from './loaders'
+import GraphQLDate from 'graphql-date'
 
-const Timestamp = GraphQLString
+const resolveToDate = (source, args, context, info) => {
+  const value = source[info.fieldName]
+  if (value != null) {
+    return new Date(value * 1000).toISOString()
+  }
+  return value
+}
 
-const sensorResolver = (source, args, context, info) => {
+const resolveSensor = (source, args, context, info) => {
   const index = source.sensors.indexOf(info.fieldName)
   return {
     units: source.units[index],
@@ -21,85 +28,135 @@ const sensorResolver = (source, args, context, info) => {
   }
 }
 
-const createSensorField = (name, valueType = GraphQLFloat) => {
-  const Datapoint = new GraphQLObjectType({
-    name: `${name}Datapoint`,
-    fields: {
-      time: { type: Timestamp },
-      value: { type: valueType }
+const Datapoint = new GraphQLObjectType({
+  name: 'Datapoint',
+  description: 'A single datapoint from a sensor.',
+  fields: {
+    time: {
+      type: GraphQLDate,
+      description: 'The timestamp of the reading.'
+    },
+    value: {
+      type: GraphQLFloat,
+      description: 'The numeric value of the sensor reading.'
     }
-  })
-  return {
-    type: new GraphQLObjectType({
-      name,
-      fields: {
-        units: { type: GraphQLString },
-        datapoints: { type: new GraphQLList(Datapoint) }
-      }
-    }),
-    resolve: sensorResolver
   }
-}
+})
 
-const resolveToDate = (source, args, context, info) => {
-  const value = source[info.fieldName]
-  if (value != null) {
-    return new Date(value * 1000).toISOString()
+const Sensor = new GraphQLObjectType({
+  name: 'Sensor',
+  description: 'Information from a single sensor.',
+  fields: {
+    units: {
+      type: GraphQLString,
+      description: 'The units for the value returned in each datapoint.'
+    },
+    datapoints: {
+      type: new GraphQLList(Datapoint),
+      description: 'The set of datapoints for the requested period.'
+    }
   }
-  return value
-}
+})
 
 const Sensors = new GraphQLObjectType({
   name: 'Sensors',
   fields: {
-    start: { type: Timestamp, resolve: resolveToDate },
-    end: { type: Timestamp, resolve: resolveToDate },
-    expires: { type: Timestamp, resolve: resolveToDate },
-    pm: createSensorField('ParticulateMatter'),
-    tmp: createSensorField('Temperature'),
-    hum: createSensorField('Humidity'),
-    co2: createSensorField('CarbonDioxide'),
-    voc: createSensorField('VolatileOrganicCompounds'),
-    allpollu: createSensorField('AirPollutionIndex')
+    start: {
+      type: GraphQLDate,
+      description: 'The timestamp of the earliest returned datapoint.',
+      resolve: resolveToDate
+    },
+    end: {
+      type: GraphQLDate,
+      description: 'The timestamp of the last returned datapoint.',
+      resolve: resolveToDate
+    },
+    expires: {
+      type: GraphQLDate,
+      description:
+        'The timestamp at which we expect a new datapoint from the device. ' +
+        'Clients can use this to determine when their data is stale.',
+      resolve: resolveToDate
+    },
+    pm: {
+      type: Sensor,
+      description: 'Particulate matter.',
+      resolve: resolveSensor
+    },
+    tmp: {
+      type: Sensor,
+      description: 'Temperature.',
+      resolve: resolveSensor
+    },
+    hum: {
+      type: Sensor,
+      description: 'Humidity.',
+      resolve: resolveSensor
+    },
+    co2: {
+      type: Sensor,
+      description: 'Carbon dioxide.',
+      resolve: resolveSensor
+    },
+    voc: {
+      type: Sensor,
+      description: 'Volatile organic compounds.',
+      resolve: resolveSensor
+    },
+    allpollu: {
+      type: Sensor,
+      description: 'Overall pollution index.',
+      resolve: resolveSensor
+    }
   }
 })
 
 const Device = new GraphQLObjectType({
   name: 'Device',
+  description: 'Information about a single device.',
   fields: {
-    uuid: { type: GraphQLString },
+    uuid: {
+      type: GraphQLString,
+      description: 'The UUID of the device.'
+    },
     name: {
       type: GraphQLString,
+      description: 'The friendly name of the device.',
       resolve ({ uuid }, args, { deviceLoader }, info) {
         return deviceLoader.load(uuid).then(device => device.name)
       }
     },
     mac: {
       type: GraphQLString,
+      description: 'The MAC of the device.',
       resolve ({ uuid }, args, { deviceLoader }, info) {
         return deviceLoader.load(uuid).then(device => device.mac)
       }
     },
     userID: {
       type: GraphQLInt,
+      description: 'The ID of the user who owns the device.',
       resolve ({ uuid }, args, { deviceLoader }, info) {
         return deviceLoader.load(uuid).then(device => device.userId)
       }
     },
     sensors: {
       type: Sensors,
+      description: 'The set of sensors on a single device.',
       args: {
         period: {
           type: GraphQLInt,
           defaultValue: 0,
-          description: 'Number of seconds between start time of search and now'
+          description:
+            'Number of seconds between start time of the period and now.'
         },
         averageBy: {
           type: GraphQLInt,
           defaultValue: 0,
           description:
-          '0 or 300 for no average. Use 3600 (average hourly) or a multiple ' +
-          'for long range requests (e.g. more than 1 day)'
+            'Resolution of the returned datapoints in seconds. Use 0 or 300 ' +
+            'for no averaging. For long range requests, it is recommended to ' +
+            'use 3600 (hourly average) or a multiple.'
         }
       },
       resolve ({ uuid }, { period, averageBy }, { datapointsLoader }, info) {
@@ -118,11 +175,17 @@ const schema = new GraphQLSchema({
         args: {
           uuid: {
             type: GraphQLString,
-            defaultValue: client.defaultDevice
+            description:
+              'The UUID of the device. If none is supplied, the default will ' +
+              'be determined based on the server’s configuration.'
           }
         },
         resolve (source, args, context, info) {
-          return { uuid: args.uuid }
+          const uuid = args.uuid || context.client.defaultDevice
+          if (!uuid) {
+            throw new Error('Supply a device UUID or configure a default.')
+          }
+          return { uuid }
         }
       }
     }
@@ -130,3 +193,7 @@ const schema = new GraphQLSchema({
 })
 
 export default schema
+
+if (require.main === module) {
+  console.log(printSchema(schema))
+}
