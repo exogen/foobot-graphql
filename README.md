@@ -56,7 +56,8 @@ The `foobotGraphQL` middleware function accepts the following options:
 
 * **`client`**: A custom API client instance to use. See the
   [client submodule](src/client.js) for help with creating a custom instance.
-* Any remaining See the [express-graphql][] documentation for
+* Any remaining options are passed along to [express-graphql][]; see its
+  documentation for more information.
 
 ### Environment Variables
 
