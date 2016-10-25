@@ -39,7 +39,7 @@ $ foobot-graphql
 Listening on port 3000.
 ```
 
-Development mode features like JSON pretty printing and the GraphiQL endpoint
+Development mode features like JSON pretty printing and the GraphiQL interface
 will be enabled unless the server is run with `NODE_ENV=production`.
 
 ### As middleware
