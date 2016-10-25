@@ -1,5 +1,5 @@
 /**
- * The Foobot API is rate limited. This class helpers us figure out when we're
+ * The Foobot API is rate limited. This class helps us figure out when we're
  * allowed to make another request.
  *
  * In the worst case, consumers of this GraphQL service will want up-to-date
@@ -13,11 +13,10 @@
  *
  * Limiter's job is to schedule spaced out fetches. The fetch delay is
  * determined based on the time of day and the number of remaining API requests
- * we think we have based on the headers in the previous request. Note that all
- * of the day's datapoints are still fetched no matter what (by expanding the
- * requested period). So there will never be any dropped datapoints, we just
- * might not fetch new ones right away.
- *
+ * we think we have based on the headers returned in the previous response.
+ * Note that all of the day's datapoints are still fetched no matter what (by
+ * expanding the requested period). So there will never be any dropped
+ * datapoints, we just might not fetch new ones right away.
  *
  * Run this file as a standalone script to test the delay parameters.
  */
