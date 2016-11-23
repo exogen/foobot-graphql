@@ -8,7 +8,7 @@
 import util from 'util'
 import formatDuration from 'humanize-duration'
 import { EventEmitter } from 'events'
-import uuid from 'node-uuid'
+import uuid from 'uuid'
 
 const debug = require('debug')('foobot-graphql:expiring-map')
 

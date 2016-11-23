@@ -80,10 +80,10 @@
     "graphql": "^0.7.0",
     "graphql-date": "^1.0.2",
     "humanize-duration": "^3.9.1",
-    "node-uuid": "^1.4.7",
     "read": "^1.0.7",
     "request": "^2.75.0",
-    "supports-color": "^3.1.2"
+    "supports-color": "^3.1.2",
+    "uuid": "^3.0.0"
   },
   "config": {
     "port": 3000
