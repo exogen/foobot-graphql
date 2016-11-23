@@ -10,6 +10,7 @@ import { ONE_MINUTE } from './util'
 
 const debug = require('debug')('foobot-graphql:data-cache')
 const MAX_CONNECTED_DISTANCE = 6 * ONE_MINUTE
+const MAX_HISTORY_SIZE = 210384 // 2 years worth of five-minute intervals
 
 export default class DataCache {
   constructor () {
@@ -27,6 +28,7 @@ export default class DataCache {
     let appended = 0
     let inserted = 0
     let skipped = 0
+    let pruned = 0
     for (let i = 0; i < data.datapoints.length; i++) {
       const datapoint = data.datapoints[i]
       let handled = false
@@ -55,12 +57,19 @@ export default class DataCache {
         }
       }
     }
+
+    if (device.datapoints.length > MAX_HISTORY_SIZE) {
+      pruned = device.datapoints.length - MAX_HISTORY_SIZE
+      device.datapoints.splice(0, pruned)
+    }
+
     debug(
       `Added datapoints. ` +
       `prepended=${prepended} ` +
       `inserted=${inserted} ` +
       `appended=${appended} ` +
-      `skipped=${skipped}`
+      `skipped=${skipped} ` +
+      `pruned=${pruned}`
     )
   }
 
