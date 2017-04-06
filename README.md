@@ -1,5 +1,6 @@
-[![Build Status][travis_img]][travis_site]
-[![Package Version][npm_img]][npm_site]
+[![Build Status](ttps://travis-ci.org/exogen/foobot-graphql.svg)](https://travis-ci.org/exogen/foobot-graphql)
+[![Package Version](https://img.shields.io/npm/v/foobot-graphql.svg)](https://www.npmjs.com/package/foobot-graphql)
+[![Greenkeeper](https://badges.greenkeeper.io/exogen/foobot-graphql.svg)](https://greenkeeper.io/)
 
 # foobot-graphql
 
@@ -246,7 +247,3 @@ type Sensors {
 [dotenv]: https://www.npmjs.com/package/dotenv
 [debug]: https://www.npmjs.com/package/debug
 [express-graphql]: https://www.npmjs.com/package/express-graphql
-[travis_img]: https://travis-ci.org/exogen/foobot-graphql.svg
-[travis_site]: https://travis-ci.org/exogen/foobot-graphql
-[npm_img]: https://img.shields.io/npm/v/foobot-graphql.svg
-[npm_site]: https://www.npmjs.com/package/foobot-graphql
