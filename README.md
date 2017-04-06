@@ -1,4 +1,4 @@
-[![Build Status](ttps://travis-ci.org/exogen/foobot-graphql.svg)](https://travis-ci.org/exogen/foobot-graphql)
+[![Build Status](https://travis-ci.org/exogen/foobot-graphql.svg)](https://travis-ci.org/exogen/foobot-graphql)
 [![Package Version](https://img.shields.io/npm/v/foobot-graphql.svg)](https://www.npmjs.com/package/foobot-graphql)
 [![Greenkeeper](https://badges.greenkeeper.io/exogen/foobot-graphql.svg)](https://greenkeeper.io/)
 
